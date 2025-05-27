@@ -25,7 +25,7 @@ Gaze_seg/
 ├── test/           # Testing code for Gaze-seg
 ├── checkpoints/    # Pre-trained checkpoints 
 ├── README.md       # Project documentation (this file)
-├── img/            # Exmaple image
+├── img/            # Example image
 ```
 
 ## Getting Started
@@ -39,7 +39,7 @@ Gaze_seg/
     # Install packages 
     pip install numpy tqdm pillow matplotlib datetime
 
-    # Install pytorch (matched with your cuda version)
+    # Install pytorch (need to match your cuda version)
     pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 
     # Install samv2
@@ -63,6 +63,9 @@ Gaze_seg/
     ```
     python test/test_{exp}.py
     ```
+
+## Data
+Release of the dataset is forthcoming.
 
 ## License
 
