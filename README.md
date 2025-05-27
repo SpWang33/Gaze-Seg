@@ -6,7 +6,8 @@
 Leveraging Temporal Gaze Patterns  <br> for Intelligent Segmentation in Mobile Eye-Tracking - <a href="https://etra.acm.org/2025/">ETRA2025</a>
 </h3>
 <h4 align="center">
-SHUPENG WANG∗, YIZI CHEN∗, SIDI WU, PETER KIEFER, MARTIN RAUBAL
+SHUPENG WANG∗, YIZI CHEN∗, SIDI WU, PETER KIEFER, MARTIN RAUBAL <br>
+ETH Zürich
 </h4>
 
 <p align="center">
@@ -24,6 +25,7 @@ Gaze_seg/
 ├── test/           # Testing code for Gaze-seg
 ├── checkpoints/    # Pre-trained checkpoints 
 ├── README.md       # Project documentation (this file)
+├── img/            # Exmaple image
 ```
 
 ## Getting Started
