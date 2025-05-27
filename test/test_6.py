@@ -5,16 +5,12 @@ from sam2.build_sam import build_sam2
 from sam2.sam2_image_predictor import SAM2ImagePredictor
 from torch.utils import data
 from PIL import Image
-import matplotlib.pyplot as plt
 import cv2
 import torch.nn as nn
 from einops import rearrange
 import torchvision
-
 from collections import defaultdict
 import collections
-
-import pdb
 
 
 def eval_iou(iou_list):
@@ -121,7 +117,7 @@ class gaze_dataset(data.Dataset):
                 'convex_hull': convex_hull, 'convex_hull_vis': convex_hull_vis, 'name': d['file']}
 
 # Load model
-checkpoint = "/mnt/e/AI_project/gaze_rebuttle/sam2.1_hiera_large.pt"
+checkpoint = "../checkpoints/sam2.1_hiera_large.pt"
 model_cfg = "configs/sam2.1/sam2.1_hiera_l.yaml"
 predictor = SAM2ImagePredictor(build_sam2(model_cfg, checkpoint))
 fuse_features = fuse_model().cuda()
@@ -132,10 +128,11 @@ predictor.model.sam_mask_decoder.train(False) # enable training of mask decoder
 predictor.model.sam_prompt_encoder.train(False) # enable training of prompt encoder
 
 # load weight
-trained_weight = "/mnt/e/AI_project/gaze_rebuttle/all_saved_weight/benchmark/object/exp_6/best_weight.torch"
+trained_weight = ''
 predictor.model.load_state_dict(torch.load(trained_weight))
 
-data_dir = '/mnt/e/AI_project/gaze_rebuttle/6_dataset_full/6_dataset/benchmark/object/6/testing'
+# Add your data directory here
+data_dir = ''
 
 # Initialize an empty list to store the data paths
 data_sample = []
@@ -176,10 +173,7 @@ mask_label = np.ones((batch_size, 1))
 
 test_miou = []
 
-# test_path = os.path.join("/cluster/scratch/yizchen/gaze_data/training_info/benchmark_test/object/test/exp_6")
-
 test_path = "./qualitative/exp_6"
-# img_path = os.path.join(test_path, 'images')
 if not os.path.exists(test_path):
     os.makedirs(test_path)
 
@@ -220,21 +214,7 @@ for idx, d in enumerate(test_dataloader):
     prd_mask_vis = prd_mask_vis[0].cpu().detach().numpy()
     prd_mask_vis = (prd_mask_vis > 0.5).astype(np.uint8)
 
-    # cv2.imwrite(os.path.join(test_path, 'prd_mask_{}.jpg'.format(idx)), (prd_mask_vis*255).astype(np.uint8)) 
     cv2.imwrite(os.path.join(test_path, frame), (prd_mask_vis*255).astype(np.uint8))
-
-    # plt.figure()
-    # plt.subplot(2, 2, 1)
-    # plt.imshow(image_batch[0][:, :, 0]*0.5 + prd_mask_vis*255*0.5)
-    # plt.scatter(new_fixation[0][0][0][0].item(), new_fixation[0][0][0][1].item(), c='r', s=10)
-    # plt.axis('off')
-    # plt.subplot(2, 2, 2)
-    # plt.imshow(convex_hull_vis[0])
-    # plt.scatter(new_fixation[0][0][0][0].item(), new_fixation[0][0][0][1].item(), c='r', s=10)
-    # plt.axis('off')
-    # plt.tight_layout()
-    # plt.savefig(os.path.join(test_path, 'prd_mask_{}.jpg'.format(idx)), dpi=300)
-    # plt.close()
 
     seg_loss = (-gt_mask * torch.log(prd_mask + 0.00001) - (1 - gt_mask) * torch.log((1 - prd_mask) + 0.00001)).mean() # cross entropy loss
 
@@ -281,9 +261,3 @@ small_acc = np.array(flatten(list(small_acc_result.values()))).mean()
 large_acc = np.array(flatten(list(large_acc_result.values()))).mean()
 
 print('Acc: All: {} Small: {} large: {}'.format(round(all_acc, 4), round(small_acc, 4), round(large_acc, 4)))
-# pdb.set_trace()
-
-# acc = eval_iou(test_miou)
-# print("Accuracy: ", acc)
-# print("miou: ", np.mean(test_miou))
-# pdb.set_trace()

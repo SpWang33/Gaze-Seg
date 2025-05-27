@@ -10,7 +10,7 @@ SHUPENG WANG∗, YIZI CHEN∗, SIDI WU, PETER KIEFER, MARTIN RAUBAL
 </h4>
 
 <p align="center">
-<img src="./pipline.png" width="800"/>
+<img src="img/pipeline.png" width="800"/>
 </p>
 
 ## Abstract
@@ -34,7 +34,16 @@ Gaze_seg/
     ```
 2. Install dependencies:
     ```bash
-    pip install -r requirements.txt
+    # Install packages 
+    pip install numpy tqdm pillow matplotlib datetime
+
+    # Install pytorch (matched with your cuda version)
+    pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+
+    # Install samv2
+    git clone https://github.com/facebookresearch/sam2.git && cd sam2
+    pip install -e .
+
     ```
 3. Download the pre-trained weights:
     ```

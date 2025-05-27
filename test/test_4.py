@@ -5,13 +5,10 @@ from sam2.build_sam import build_sam2
 from sam2.sam2_image_predictor import SAM2ImagePredictor
 from torch.utils import data
 from PIL import Image
-import matplotlib.pyplot as plt
 import cv2
-
 from collections import defaultdict
 import collections
 
-import pdb
 
 def eval_iou(iou_list):
     # Set the IoU threshold
@@ -65,7 +62,7 @@ class gaze_dataset(data.Dataset):
         return {'image': image, 'ann_map': ann_map, 'new_fixation': new_fixation, 'heatmap': heatmap, 'name': d['file']}
 
 # Load model
-checkpoint = "/mnt/e/AI_project/gaze_rebuttle/sam2.1_hiera_large.pt"
+checkpoint = "../checkpoints/sam2.1_hiera_large.pt"
 model_cfg = "configs/sam2.1/sam2.1_hiera_l.yaml"
 predictor = SAM2ImagePredictor(build_sam2(model_cfg, checkpoint))
 
@@ -74,12 +71,11 @@ predictor.model.sam_mask_decoder.train(False) # enable training of mask decoder
 predictor.model.sam_prompt_encoder.train(False) # enable training of prompt encoder
 
 # load weight
-# trained_weight = "/cluster/scratch/yizchen/gaze_data/training_info/scene/exp_7/2024-10-30_11_36_16/best_weight.torch"
-trained_weight = "/mnt/e/AI_project/gaze_rebuttle/all_saved_weight/benchmark/object/exp_7/best_weight.torch"
+trained_weight = ''
 predictor.model.load_state_dict(torch.load(trained_weight))
 
-# data_dir = '/cluster/scratch/yizchen/benchmark_new/scene/7/testing'
-data_dir = '/mnt/e/AI_project/gaze_rebuttle/6_dataset_full/6_dataset/benchmark/object/7/testing'
+# Add your data directory here
+data_dir = ''
 
 # Initialize an empty list to store the data paths
 data_sample = []
@@ -115,10 +111,7 @@ mask_label = np.ones((batch_size, 1))
 
 test_miou = []
 
-# test_path = os.path.join("/cluster/scratch/yizchen/gaze_data/training_info/benchmark/scene/test/exp_7")
-# test_path = os.path.join("/cluster/scratch/yizchen/gaze_data/training_info/benchmark/object/test/exp_7")
-test_path = "./qualitative/exp_7"
-# img_path = os.path.join(test_path, 'images')
+test_path = "./qualitative/exp_4"
 if not os.path.exists(test_path):
     os.makedirs(test_path)
 
@@ -204,9 +197,3 @@ small_acc = np.array(flatten(list(small_acc_result.values()))).mean()
 large_acc = np.array(flatten(list(large_acc_result.values()))).mean()
 
 print('Acc: All: {} Small: {} large: {}'.format(round(all_acc, 4), round(small_acc, 4), round(large_acc, 4)))
-# pdb.set_trace()
-
-# acc = eval_iou(test_miou)
-# print("Accuracy: ", acc)
-# print("miou: ", np.mean(test_miou))
-# pdb.set_trace()

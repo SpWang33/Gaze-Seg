@@ -5,14 +5,12 @@ from sam2.build_sam import build_sam2
 from sam2.sam2_image_predictor import SAM2ImagePredictor
 from torch.utils import data
 from PIL import Image
-import matplotlib.pyplot as plt
 
 import collections
 from collections import defaultdict
 
 import cv2
 
-import pdb
 
 def eval_iou(iou_list):
     # Set the IoU threshold
@@ -73,7 +71,7 @@ class gaze_dataset(data.Dataset):
         return {'image': image, 'ann_map': ann_map, 'new_fixation': new_fixation, 'fixation_mask': fixation_image, 'name': d['file']}
 
 # Load model
-checkpoint = "/mnt/e/AI_project/gaze_rebuttle/sam2.1_hiera_large.pt"
+checkpoint = "../checkpoints/sam2.1_hiera_large.pt"
 model_cfg = "configs/sam2.1/sam2.1_hiera_l.yaml"
 predictor = SAM2ImagePredictor(build_sam2(model_cfg, checkpoint))
 
@@ -82,10 +80,11 @@ predictor.model.sam_mask_decoder.train(False) # enable training of mask decoder
 predictor.model.sam_prompt_encoder.train(False) # enable training of prompt encoder
 
 # load weight
-trained_weight = "/mnt/e/AI_project/gaze_rebuttle/all_saved_weight/benchmark/object/exp_3/best_weight.torch"
+trained_weight = ''
 predictor.model.load_state_dict(torch.load(trained_weight))
 
-data_dir = '/mnt/e/AI_project/gaze_rebuttle/6_dataset_full/6_dataset/benchmark/object/3/testing'
+# Add your data directory here
+data_dir = ''
 
 # Initialize an empty list to store the data paths
 data_sample = []
@@ -123,9 +122,7 @@ mask_label = np.ones((batch_size, 1))
 
 test_miou = []
 
-# test_path = os.path.join("/cluster/scratch/yizchen/gaze_data/training_info/benchmark/scene/test/exp_3")
-test_path = "./qualitative/exp_3"
-# img_path = os.path.join(test_path, 'images')
+test_path = "./qualitative/exp_2"
 if not os.path.exists(test_path):
     os.makedirs(test_path)
 
@@ -165,20 +162,6 @@ for idx, d in enumerate(test_dataloader):
 
     # Prediction
     cv2.imwrite(os.path.join(test_path, frame), (prd_mask_vis*255).astype(np.uint8))
-
-    # plt.figure()
-    # plt.subplot(2, 2, 1)
-    # plt.imshow(image_batch[0][:, :, 0]*0.5 + prd_mask_vis*255*0.5)
-    # plt.scatter(new_fixation[0][0][0][0].item(), new_fixation[0][0][0][1].item(), c='r', s=10)
-    # plt.axis('off')
-    # plt.subplot(2, 2, 2)
-    # plt.imshow(fixation_mask[0][0].detach().cpu().numpy()*255)
-    # plt.axis('off')
-    # plt.subplot(2, 2, 3)
-    # plt.imshow(ann_map[0][0].detach().cpu().numpy()*255)
-    # plt.axis('off')
-    # plt.savefig(os.path.join(test_path, 'prd_mask_{}.jpg'.format(idx)), dpi=300)
-    # plt.close()
 
     # Score loss calculation (intersection over union) IOU
     inter = (gt_mask * (prd_mask > 0.5)).sum(1).sum(1)
@@ -223,10 +206,3 @@ small_acc = np.array(flatten(list(small_acc_result.values()))).mean()
 large_acc = np.array(flatten(list(large_acc_result.values()))).mean()
 
 print('Acc: All: {} Small: {} large: {}'.format(round(all_acc, 4), round(small_acc, 4), round(large_acc, 4)))
-# print(test_path)
-# pdb.set_trace()
-
-# acc = eval_iou(test_miou)
-# print("Accuracy: ", acc)
-# print("miou: ", np.mean(test_miou))
-# pdb.set_trace()

@@ -62,7 +62,7 @@ class gaze_dataset(data.Dataset):
         return {'image': image, 'ann_map': ann_map, 'new_fixation': new_fixation, 'name': d['file']}
 
 # Load model
-checkpoint = "../sam2.1_hiera_large.pt"
+checkpoint = "../checkpoints/sam2.1_hiera_large.pt"
 model_cfg = "configs/sam2.1/sam2.1_hiera_l.yaml"
 predictor = SAM2ImagePredictor(build_sam2(model_cfg, checkpoint))
 
@@ -70,7 +70,8 @@ predictor = SAM2ImagePredictor(build_sam2(model_cfg, checkpoint))
 predictor.model.sam_mask_decoder.train(False) # enable training of mask decoder
 predictor.model.sam_prompt_encoder.train(False) # enable training of prompt encoder
 
-data_dir = '/mnt/e/AI_project/gaze_rebuttle/6_dataset_full/6_dataset/benchmark/object/1/testing'
+# Add your data directory here
+data_dir = ''
 
 # Initialize an empty list to store the data paths
 data_sample = []
@@ -109,7 +110,7 @@ best_miou = 0
 
 test_miou = []
 
-test_path = "./qualitative/exp_1"
+test_path = "./qualitative/exp_0"
 if not os.path.exists(test_path):
     os.makedirs(test_path)
 
@@ -170,8 +171,6 @@ for idx, d in enumerate(test_dataloader):
 result = collections.OrderedDict(sorted(result.items()))
 np.savez('results/test0.npz', iou=np.array(iou_list), acc=np.array(acc_list))
 
-pdb.set_trace()
-
 small = 10000
 
 small_result = {key: value for key, value in result.items() if key < small}
@@ -194,12 +193,3 @@ small_acc = np.array(flatten(list(small_acc_result.values()))).mean()
 large_acc = np.array(flatten(list(large_acc_result.values()))).mean()
 
 print('Acc: All: {} Small: {} large: {}'.format(round(all_acc, 4), round(small_acc, 4), round(large_acc, 4)))
-pdb.set_trace()
-
-# print(test_path)
-# pdb.set_trace()
-
-# acc = eval_iou(test_miou)
-# print("Accuracy: ", acc)
-# print("miou: ", np.mean(test_miou))
-# # pdb.set_trace()
